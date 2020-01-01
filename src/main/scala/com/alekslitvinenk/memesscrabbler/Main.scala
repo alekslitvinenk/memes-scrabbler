@@ -2,18 +2,29 @@ package com.alekslitvinenk.memesscrabbler
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
+import akka.http.scaladsl.common.{EntityStreamingSupport, JsonEntityStreamingSupport}
+import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model.Uri.Query
 import akka.http.scaladsl.model.headers.{Authorization, OAuth2BearerToken}
-import akka.http.scaladsl.model.{HttpHeader, HttpRequest, Uri}
+import akka.http.scaladsl.model.{HttpRequest, Uri}
+import akka.http.scaladsl.unmarshalling._
 import akka.stream.ActorMaterializer
 import com.alekslitvinenk.memesscrabbler.config.MemesScrabbler
+import com.alekslitvinenk.memesscrabbler.domain.Protocol._
 import com.typesafe.config.ConfigFactory
 
-object Main extends App {
+import scala.concurrent.duration._
+import scala.concurrent.{Await, Future}
 
+object Main extends App with SprayJsonSupport{
+
+  //implicit val ec = ExecutionContext.global
   implicit val system = ActorSystem()
   implicit val dispatcher = system.dispatcher
   implicit val materializer = ActorMaterializer()
+  
+  implicit val jsonStreamingSupport: JsonEntityStreamingSupport =
+    EntityStreamingSupport.json()
 
   val config = ConfigFactory.load()
   val memesScrabblerConfig = MemesScrabbler(config)
@@ -30,10 +41,14 @@ object Main extends App {
     .withHeaders(Authorization(OAuth2BearerToken(memesScrabblerConfig.twitterBearerToken)))
 
   val res = Http().singleRequest(req)
-    .flatMap( resp => {
-      resp.entity.dataBytes.runReduce(_ ++ _).map(f => println(f.utf8String))
-    })
-
-  println(memesScrabblerConfig)
-  println(res)
+  
+  val response = Await.result(res, Duration.Inf)
+  
+  // unmarshal:
+  val unmarshalled: Future[List[Tweet]] =
+    Unmarshal(response).to[List[Tweet]]
+  
+  val errr = Await.result(unmarshalled, Duration.Inf)
+  
+  println()
 }

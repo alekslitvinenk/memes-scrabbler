@@ -10,7 +10,8 @@ lazy val root = (project in file("."))
       "org.scalamock" %% "scalamock" % "4.1.0" % Test,
       "com.github.pureconfig" %% "pureconfig" % "0.12.2",
       "com.typesafe.akka" %% "akka-http" % "10.1.8",
-      "com.typesafe.akka" %% "akka-stream" % "2.5.24",
+      "com.typesafe.akka" %% "akka-stream" % "2.5.26",
+      "com.typesafe.akka" %% "akka-http-spray-json" % "10.1.11"
     ),
   )
 
