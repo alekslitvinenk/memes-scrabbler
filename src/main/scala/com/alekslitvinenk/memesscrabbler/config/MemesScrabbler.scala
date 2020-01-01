@@ -4,7 +4,10 @@ import com.typesafe.config.Config
 import pureconfig.ConfigSource
 import pureconfig.generic.auto._
 
-case class MemesScrabbler(twitterId: String)
+case class MemesScrabbler(
+   twitterId: String,
+   twitterBearerToken: String,
+)
 
 object MemesScrabbler {
   def apply(config: Config): MemesScrabbler = {
