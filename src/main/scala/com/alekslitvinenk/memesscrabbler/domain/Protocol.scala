@@ -1,35 +1,67 @@
 package com.alekslitvinenk.memesscrabbler.domain
 
-import spray.json.{DefaultJsonProtocol, JsArray, JsValue, RootJsonFormat}
+import spray.json.{DefaultJsonProtocol, JsArray, JsNumber, JsValue, RootJsonFormat}
 
 object Protocol extends DefaultJsonProtocol{
+  
+  case class VideoVariant(
+    bitRate: Option[Int],
+    contentType: String,
+    url: String,
+  )
+  
+  case class VideoInfo(
+    aspectRation: List[Int],
+    variants: List[VideoVariant],
+    durationMills: Int,
+  )
   
   case class Media(
     id: String,
     mediaUrl: String,
     `type`: String,
+    videoInfo: Option[VideoInfo],
   )
   
   case class EntitiesList(
-    //hashTags: List[String],
-    //urls: List[String],
     media: Option[List[Media]],
   )
   
   case class Tweet(
     createdAt: String,
-    id: String,
-    text: String,
-    entities: EntitiesList,
+    id       : String,
+    text     : String,
+    extendedEntities: Option[EntitiesList],
   )
+  
+  private def readVideoVariant(value: JsValue): VideoVariant = {
+    val fields = value.asJsObject.fields
+    
+    VideoVariant(
+      fields.get("bitrate").map(_.convertTo[Int]),
+      fields("content_type").toString,
+      fields("url").toString
+    )
+  }
+  
+  private def readVideoInfo(value: JsValue): VideoInfo = {
+    val fields = value.asJsObject.fields
+    
+    VideoInfo(
+      aspectRation = fields("aspect_ratio").asInstanceOf[JsArray].elements.map(_.asInstanceOf[JsNumber].value.toInt).toList,
+      variants = fields("variants").asInstanceOf[JsArray].elements.map(readVideoVariant).toList,
+      durationMills = fields("duration_millis").asInstanceOf[JsNumber].value.toInt,
+    )
+  }
   
   private def readMedia(value: JsValue): Media = {
     val fields = value.asJsObject.fields
     
     Media(
-      fields("id").toString,
-      fields("media_url").toString,
-      fields("type").toString
+      id = fields("id").toString,
+      mediaUrl = fields("media_url").toString,
+      `type` = fields("type").toString,
+      videoInfo = fields.get("video_info").map(readVideoInfo)
     )
   }
   
@@ -51,7 +83,7 @@ object Protocol extends DefaultJsonProtocol{
         createdAt = fields("created_at").toString,
         id        = fields("id").toString,
         text      = fields("text").toString,
-        entities  = readEntities(fields("entities"))
+        extendedEntities  = fields.get("extended_entities").map(readEntities)
       )
     }
   }

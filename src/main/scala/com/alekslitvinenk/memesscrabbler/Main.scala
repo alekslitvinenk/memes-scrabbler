@@ -17,14 +17,10 @@ import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 
 object Main extends App with SprayJsonSupport{
-
-  //implicit val ec = ExecutionContext.global
+  
   implicit val system = ActorSystem()
   implicit val dispatcher = system.dispatcher
   implicit val materializer = ActorMaterializer()
-  
-  implicit val jsonStreamingSupport: JsonEntityStreamingSupport =
-    EntityStreamingSupport.json()
 
   val config = ConfigFactory.load()
   val memesScrabblerConfig = MemesScrabbler(config)
