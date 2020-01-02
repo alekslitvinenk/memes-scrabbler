@@ -2,35 +2,35 @@ package com.alekslitvinenk.memesscrabbler.domain
 
 import spray.json.{DefaultJsonProtocol, JsArray, JsNumber, JsValue, RootJsonFormat}
 
-object Protocol extends DefaultJsonProtocol{
+object Protocol extends DefaultJsonProtocol {
   
   case class VideoVariant(
-    bitRate: Option[Int],
+    bitRate    : Option[Int],
     contentType: String,
-    url: String,
+    url        : String,
   )
   
   case class VideoInfo(
     aspectRation: List[Int],
-    variants: List[VideoVariant],
+    variants    : List[VideoVariant],
     durationMills: Int,
   )
   
   case class Media(
-    id: String,
+    id: Long,
     mediaUrl: String,
     `type`: String,
     videoInfo: Option[VideoInfo],
   )
   
   case class EntitiesList(
-    media: Option[List[Media]],
+    media   : Option[List[Media]],
   )
   
   case class Tweet(
     createdAt: String,
-    id       : String,
-    text     : String,
+    id: Long,
+    text: String,
     extendedEntities: Option[EntitiesList],
   )
   
@@ -38,9 +38,9 @@ object Protocol extends DefaultJsonProtocol{
     val fields = value.asJsObject.fields
     
     VideoVariant(
-      fields.get("bitrate").map(_.convertTo[Int]),
-      fields("content_type").toString,
-      fields("url").toString
+      bitRate = fields.get("bitrate").map(_.convertTo[Int]),
+      contentType = fields("content_type").convertTo[String],
+      url = fields("url").convertTo[String],
     )
   }
   
@@ -50,7 +50,7 @@ object Protocol extends DefaultJsonProtocol{
     VideoInfo(
       aspectRation = fields("aspect_ratio").asInstanceOf[JsArray].elements.map(_.asInstanceOf[JsNumber].value.toInt).toList,
       variants = fields("variants").asInstanceOf[JsArray].elements.map(readVideoVariant).toList,
-      durationMills = fields("duration_millis").asInstanceOf[JsNumber].value.toInt,
+      durationMills = fields("duration_millis").convertTo[Int],
     )
   }
   
@@ -58,9 +58,9 @@ object Protocol extends DefaultJsonProtocol{
     val fields = value.asJsObject.fields
     
     Media(
-      id = fields("id").toString,
-      mediaUrl = fields("media_url").toString,
-      `type` = fields("type").toString,
+      id = fields("id").convertTo[Long],
+      mediaUrl = fields("media_url").convertTo[String],
+      `type` = fields("type").convertTo[String],
       videoInfo = fields.get("video_info").map(readVideoInfo)
     )
   }
@@ -76,14 +76,15 @@ object Protocol extends DefaultJsonProtocol{
   implicit object TweetFormat extends RootJsonFormat[Tweet] {
     // The App ain't meant to produce JSON, so leave unimplemented
     def write(t: Tweet) = ???
-    def read(value: JsValue): Tweet = {
+    
+    def read(value        : JsValue): Tweet = {
       val fields = value.asJsObject.fields
       
       Tweet(
-        createdAt = fields("created_at").toString,
-        id        = fields("id").toString,
-        text      = fields("text").toString,
-        extendedEntities  = fields.get("extended_entities").map(readEntities)
+        createdAt = fields("created_at").convertTo[String],
+        id = fields("id").convertTo[Long],
+        text = fields("text").convertTo[String],
+        extendedEntities = fields.get("extended_entities").map(readEntities)
       )
     }
   }
