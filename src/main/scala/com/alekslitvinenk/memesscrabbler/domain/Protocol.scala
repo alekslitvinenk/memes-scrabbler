@@ -69,7 +69,7 @@ object Protocol extends DefaultJsonProtocol {
     val fields = value.asJsObject.fields
     
     EntitiesList(
-      fields.get("media").map(_.asInstanceOf[JsArray].elements.map(readMedia).toList)
+      media = fields.get("media").map(_.asInstanceOf[JsArray].elements.map(readMedia).toList)
     )
   }
   

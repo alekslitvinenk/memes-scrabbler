@@ -1,5 +1,3 @@
 package com.alekslitvinenk.memesscrabbler.service
 
-class TwitterFeedReader {
-  
-}
+case class TwitterId(value: String) extends AnyVal
