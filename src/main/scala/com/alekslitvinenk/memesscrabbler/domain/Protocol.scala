@@ -13,7 +13,7 @@ object Protocol extends DefaultJsonProtocol {
   case class VideoInfo(
     aspectRation: List[Int],
     variants    : List[VideoVariant],
-    durationMills: Int,
+    durationMills: Option[Int],
   )
   
   case class Media(
@@ -50,7 +50,7 @@ object Protocol extends DefaultJsonProtocol {
     VideoInfo(
       aspectRation = fields("aspect_ratio").asInstanceOf[JsArray].elements.map(_.asInstanceOf[JsNumber].value.toInt).toList,
       variants = fields("variants").asInstanceOf[JsArray].elements.map(readVideoVariant).toList,
-      durationMills = fields("duration_millis").convertTo[Int],
+      durationMills = fields.get("duration_millis").map(_.convertTo[Int]),
     )
   }
   

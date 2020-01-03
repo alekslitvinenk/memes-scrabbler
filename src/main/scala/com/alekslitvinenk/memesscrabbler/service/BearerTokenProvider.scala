@@ -1,9 +1,19 @@
 package com.alekslitvinenk.memesscrabbler.service
 
-// Helps work around rate limit by providing next bearer token when the current one is exhausted
-class BearerTokenProvider(tokens: List[BearerToken]) {
+import java.util.concurrent.atomic.AtomicReference
+
+import scala.collection.mutable
+
+// Helps work around rate limit by providing next bearer token when the current one gets exhausted
+case class BearerTokenProvider(tokens: List[BearerToken]) {
   
-  def getCurrentToken: BearerToken = ???
+  // Passing list as a vararg
+  private val tokensQueue: mutable.Queue[BearerToken] = mutable.Queue[BearerToken](tokens: _*)
+  private val tokenRef: AtomicReference[BearerToken] = new AtomicReference[BearerToken](tokensQueue.dequeue())
   
-  def setNextCurrentToken: Unit = ???
+  def getCurrentToken: BearerToken = tokenRef.get()
+  
+  def setNextCurrentToken(currentToken: BearerToken): Any =
+    if (tokenRef.compareAndSet(currentToken, tokensQueue.head))
+      tokensQueue.dequeue()
 }
