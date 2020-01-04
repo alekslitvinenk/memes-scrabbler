@@ -1,4 +1,4 @@
-package com.alekslitvinenk.memesscrabbler.service
+package com.alekslitvinenk.memesscrabbler.domain.twitter
 
 import java.util.concurrent.atomic.AtomicReference
 

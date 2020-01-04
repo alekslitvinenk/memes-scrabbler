@@ -6,35 +6,36 @@ import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model.Uri.Query
 import akka.http.scaladsl.model.headers.{Authorization, OAuth2BearerToken}
 import akka.http.scaladsl.model.{HttpRequest, Uri}
-import akka.http.scaladsl.unmarshalling.Unmarshal
+import akka.http.scaladsl.unmarshalling._
 import akka.stream.ActorMaterializer
-import com.alekslitvinenk.memesscrabbler.domain.Protocol._
+import com.alekslitvinenk.memesscrabbler.domain.twitter.Protocol._
+import com.alekslitvinenk.memesscrabbler.domain.twitter.{BearerTokenProvider, TwitterId}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class TwitterAccount(twitterId: TwitterId)
-                    (implicit bearerTokenProvider: BearerTokenProvider,
+case class TwitterAccountReader(twitterId: TwitterId)
+                               (implicit bearerTokenProvider: BearerTokenProvider,
                      actorSystem: ActorSystem,
                      ec: ExecutionContext,
                      actorMaterializer: ActorMaterializer) extends SprayJsonSupport {
   
-  def consumeFeed(f: Tweet => Unit): Future[List[Unit]] = {
-    def queryAndConsumeChunk(startFromTweetId: Option[Long] = None): Future[List[Unit]] =
-      queryTimeline(startFromTweetId).flatMap(tweets => {
-        
-        val tweetsToProcess = if (startFromTweetId.isDefined)
-          tweets.drop(1)
-        else tweets
-  
-        tweetsToProcess.map(f)
-        
-        if(tweets.length > 1)
-          queryAndConsumeChunk(Some(tweets.last.id))
-        else Future.successful(List.empty)
-      })
-    
-    queryAndConsumeChunk()
+  def consumeTweets(f: Tweet => Unit): Future[List[Unit]] = {
+    queryAndConsumeByChunk(f)
   }
+  
+  private def queryAndConsumeByChunk(f: Tweet => Unit, startFromTweetId: Option[Long] = None): Future[List[Unit]] =
+    queryTimeline(startFromTweetId).flatMap(tweets => {
+    
+      val tweetsToProcess = if (startFromTweetId.isDefined)
+        tweets.drop(1)
+      else tweets
+    
+      tweetsToProcess.foreach(f)
+    
+      if(tweets.length > 1)
+        queryAndConsumeByChunk(f, Some(tweets.last.id))
+      else Future.successful(List.empty)
+    })
   
   private def queryTimeline(startFromTweetId: Option[Long] = None): Future[List[Tweet]] = {
     val queryParams = Map(

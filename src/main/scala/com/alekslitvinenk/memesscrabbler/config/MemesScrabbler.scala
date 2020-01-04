@@ -5,7 +5,7 @@ import pureconfig.ConfigSource
 import pureconfig.generic.auto._
 
 case class MemesScrabbler(
-   twitterId: String,
+   resourceIds: String,
    twitterBearerToken: String,
 )
 

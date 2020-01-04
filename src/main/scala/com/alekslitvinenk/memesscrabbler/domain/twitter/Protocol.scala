@@ -1,4 +1,4 @@
-package com.alekslitvinenk.memesscrabbler.domain
+package com.alekslitvinenk.memesscrabbler.domain.twitter
 
 import spray.json.{DefaultJsonProtocol, JsArray, JsNumber, JsValue, RootJsonFormat}
 
