@@ -37,13 +37,11 @@ object Main extends App {
     prefix match {
       case TwitterAccount => TwitterAccountReader(TwitterId(id))
         .consumeTweets(printTweet)
-        .map(_ => ())
 
       // FacebookPageFeedReader here just for app extensibility demonstration
       // It has dummy implementation for the time being ;)
       case FacebookPage => FacebookPageFeedReader(PageId(id))
         .consumeFeed(_ => ())
-        .map(_ => ())
     }
   }.toList
   

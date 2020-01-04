@@ -8,6 +8,6 @@ import scala.concurrent.Future
 case class FacebookPageFeedReader(pageId: PageId) {
   
   // Dummy implementation
-  def consumeFeed(f: FacebookPost => Unit): Future[List[Unit]] =
-    Future.successful(List.empty[Unit])
+  def consumeFeed(f: FacebookPost => Unit): Future[Unit] =
+    Future.successful(())
 }

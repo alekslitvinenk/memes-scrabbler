@@ -20,11 +20,11 @@ case class TwitterAccountReader(twitterId: TwitterId)
                                 ec: ExecutionContext,
                                 actorMaterializer: ActorMaterializer) extends SprayJsonSupport {
   
-  def consumeTweets(f: Tweet => Unit): Future[List[Unit]] = {
+  def consumeTweets(f: Tweet => Unit): Future[Unit] = {
     queryAndConsumeByChunk(f)
   }
   
-  private def queryAndConsumeByChunk(f: Tweet => Unit, startFromTweetId: Option[Long] = None): Future[List[Unit]] =
+  private def queryAndConsumeByChunk(f: Tweet => Unit, startFromTweetId: Option[Long] = None): Future[Unit] =
     queryTimeline(startFromTweetId).flatMap(tweets => {
       
       val tweetsToProcess = if (startFromTweetId.isDefined)
@@ -35,7 +35,7 @@ case class TwitterAccountReader(twitterId: TwitterId)
       
       if (tweets.length > 1)
         queryAndConsumeByChunk(f, Some(tweets.last.id))
-      else Future.successful(List.empty)
+      else Future.successful(())
     })
   
   private def queryTimeline(startFromTweetId: Option[Long] = None): Future[List[Tweet]] = {
