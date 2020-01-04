@@ -13,7 +13,13 @@ case class BearerTokenProvider(tokens: List[BearerToken]) {
   
   def getCurrentToken: BearerToken = tokenRef.get()
   
-  def setNextCurrentToken(currentToken: BearerToken): Any =
-    if (tokenRef.compareAndSet(currentToken, tokensQueue.head))
+  def setNextCurrentToken(currentToken: BearerToken): Any = {
+    
+    val head = tokensQueue.head
+    
+    if (tokenRef.compareAndSet(currentToken, tokensQueue.head)) {
       tokensQueue.dequeue()
+      tokensQueue.enqueue(currentToken)
+    }
+  }
 }

@@ -32,6 +32,7 @@ object Protocol extends DefaultJsonProtocol {
     id: Long,
     text: String,
     extendedEntities: Option[EntitiesList],
+    lang: String,
   )
   
   private def readVideoVariant(value: JsValue): VideoVariant = {
@@ -84,7 +85,8 @@ object Protocol extends DefaultJsonProtocol {
         createdAt = fields("created_at").convertTo[String],
         id = fields("id").convertTo[Long],
         text = fields("text").convertTo[String],
-        extendedEntities = fields.get("extended_entities").map(readEntities)
+        extendedEntities = fields.get("extended_entities").map(readEntities),
+        lang = fields("lang").convertTo[String],
       )
     }
   }

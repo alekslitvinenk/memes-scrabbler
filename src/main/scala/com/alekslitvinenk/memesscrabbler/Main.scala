@@ -25,7 +25,10 @@ object Main extends App {
   val memesScrabblerConfig = MemesScrabbler(config)
   val resourcesList = memesScrabblerConfig.resourceIds.split(",")
 
-  implicit val bearerTokenProvider = BearerTokenProvider(List(BearerToken(memesScrabblerConfig.twitterBearerToken)))
+  implicit val bearerTokenProvider = BearerTokenProvider(List(
+    BearerToken(memesScrabblerConfig.twitterBearerToken),
+    BearerToken("123"),
+  ))
   
   val futureResults = resourcesList.map { r =>
     val prefix = r.substring(0, 1)
