@@ -7,12 +7,13 @@ import com.alekslitvinenk.memesscrabbler.domain.facebook.PageId
 import com.alekslitvinenk.memesscrabbler.domain.twitter.Protocol.Tweet
 import com.alekslitvinenk.memesscrabbler.domain.twitter.{BearerToken, BearerTokenProvider, TwitterId}
 import com.alekslitvinenk.memesscrabbler.service.{FacebookPageFeedReader, TwitterAccountReader}
+import com.alekslitvinenk.memesscrabbler.util.StrictLogging
 import com.typesafe.config.ConfigFactory
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 
-object Main extends App {
+object Main extends App with StrictLogging {
   
   val TwitterAccount = "t"
   val FacebookPage = "f"
@@ -49,10 +50,10 @@ object Main extends App {
   
   Await.result(finalFuture, Duration.Inf)
   
-  println(">>> All jobs completed")
+  logger.debug(">>> All jobs completed")
   
   def printTweet(t: Tweet) = {
-    println("====================================")
-    println(t.text)
+    logger.info("====================================")
+    logger.info(t.text)
   }
 }

@@ -6,12 +6,13 @@ lazy val root = (project in file("."))
     unmanagedResourceDirectories in Compile += { baseDirectory.value / "src/main/resources" },
 
     libraryDependencies ++= Seq(
-      "org.scalatest" %% "scalatest" % "3.0.5" % Test,
-      "org.scalamock" %% "scalamock" % "4.1.0" % Test,
       "com.github.pureconfig" %% "pureconfig" % "0.12.2",
       "com.typesafe.akka" %% "akka-http" % "10.1.8",
       "com.typesafe.akka" %% "akka-stream" % "2.5.26",
-      "com.typesafe.akka" %% "akka-http-spray-json" % "10.1.11"
+      "com.typesafe.akka" %% "akka-http-spray-json" % "10.1.11",
+      "ch.qos.logback" % "logback-classic" % "1.2.3",
+      "org.scalatest" %% "scalatest" % "3.0.5" % Test,
+      "org.scalamock" %% "scalamock" % "4.1.0" % Test,
     ),
   )
 

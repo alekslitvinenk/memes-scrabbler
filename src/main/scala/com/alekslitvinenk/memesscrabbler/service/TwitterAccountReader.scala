@@ -11,6 +11,7 @@ import akka.http.scaladsl.unmarshalling._
 import akka.stream.ActorMaterializer
 import com.alekslitvinenk.memesscrabbler.domain.twitter.Protocol._
 import com.alekslitvinenk.memesscrabbler.domain.twitter.{BearerTokenProvider, TwitterId}
+import com.alekslitvinenk.memesscrabbler.util.StrictLogging
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -18,7 +19,7 @@ case class TwitterAccountReader(twitterId: TwitterId)
                                (implicit bearerTokenProvider: BearerTokenProvider,
                                 actorSystem: ActorSystem,
                                 ec: ExecutionContext,
-                                actorMaterializer: ActorMaterializer) extends SprayJsonSupport {
+                                actorMaterializer: ActorMaterializer) extends SprayJsonSupport with StrictLogging {
   
   def consumeTweets(f: Tweet => Unit): Future[Unit] = {
     queryAndConsumeByChunk(f)
@@ -43,8 +44,8 @@ case class TwitterAccountReader(twitterId: TwitterId)
       "screen_name" -> twitterId.value,
       "include_rts" -> "false"
     ) ++ startFromTweetId.map("max_id" -> _.toString)
-    
-    println(s">>> $queryParams")
+  
+    logger.debug(s">>> $queryParams")
     
     val uri = Uri("https://api.twitter.com/1.1/statuses/user_timeline.json")
       .withQuery(Query(queryParams))
@@ -56,12 +57,13 @@ case class TwitterAccountReader(twitterId: TwitterId)
       .withHeaders(Authorization(OAuth2BearerToken(currentBearerToken.value)))
     
     Http().singleRequest(req).flatMap { response =>
-      println(s">>> ${response.status}")
+      logger.debug(s">>> ${response.status}")
       
       response.status match {
         case OK => Unmarshal(response).to[List[Tweet]]
         
         case TooManyRequests =>
+          logger.debug("TwitterAPI rate limit was reached")
           // shift bearer token if rate limit was met
           bearerTokenProvider.setNextCurrentToken(currentBearerToken)
           // try with new token
