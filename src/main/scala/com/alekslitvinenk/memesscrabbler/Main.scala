@@ -6,7 +6,7 @@ import com.alekslitvinenk.memesscrabbler.config.MemesScrabbler
 import com.alekslitvinenk.memesscrabbler.domain.facebook.PageId
 import com.alekslitvinenk.memesscrabbler.domain.twitter.Protocol.Tweet
 import com.alekslitvinenk.memesscrabbler.domain.twitter.{BearerToken, BearerTokenProvider, TwitterId}
-import com.alekslitvinenk.memesscrabbler.service.{FacebookPageFeedReader, TwitterAccountReader}
+import com.alekslitvinenk.memesscrabbler.service.{FacebookPageFeedReader, MemStoreStub, MemTweetProcessor, RetweetsBasedTweetGrader, TwitterAccountReader}
 import com.alekslitvinenk.memesscrabbler.util.StrictLogging
 import com.typesafe.config.ConfigFactory
 
@@ -37,7 +37,7 @@ object Main extends App with StrictLogging {
     
     prefix match {
       case TwitterAccount => TwitterAccountReader(TwitterId(id))
-        .consumeTweets(printTweet)
+        .consumeTweets(MemTweetProcessor(RetweetsBasedTweetGrader(100), MemStoreStub()).process)
 
       // FacebookPageFeedReader here just for app extensibility demonstration
       // It has dummy implementation for the time being ;)
@@ -51,9 +51,4 @@ object Main extends App with StrictLogging {
   Await.result(finalFuture, Duration.Inf)
   
   logger.debug(">>> All jobs completed")
-  
-  def printTweet(t: Tweet) = {
-    logger.info("====================================")
-    logger.info(t.text)
-  }
 }

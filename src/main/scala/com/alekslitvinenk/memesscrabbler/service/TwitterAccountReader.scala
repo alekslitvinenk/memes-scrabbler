@@ -9,6 +9,7 @@ import akka.http.scaladsl.model.headers.{Authorization, OAuth2BearerToken}
 import akka.http.scaladsl.model.{HttpRequest, Uri}
 import akka.http.scaladsl.unmarshalling._
 import akka.stream.ActorMaterializer
+import com.alekslitvinenk.memesscrabbler.Main.logger
 import com.alekslitvinenk.memesscrabbler.domain.twitter.Protocol._
 import com.alekslitvinenk.memesscrabbler.domain.twitter.{BearerTokenProvider, TwitterId}
 import com.alekslitvinenk.memesscrabbler.util.StrictLogging
@@ -32,7 +33,10 @@ case class TwitterAccountReader(twitterId: TwitterId)
         tweets.drop(1)
       else tweets
       
-      tweetsToProcess.foreach(f)
+      tweetsToProcess.foreach { t =>
+        printTweet(t)
+        f(t)
+      }
       
       if (tweets.length > 1)
         queryAndConsumeByChunk(f, Some(tweets.last.id))
@@ -72,5 +76,10 @@ case class TwitterAccountReader(twitterId: TwitterId)
         case _ => Future.successful(List.empty)
       }
     }
+  }
+  
+  private def printTweet(t: Tweet) = {
+    logger.info("====================================")
+    logger.info(t.text)
   }
 }
