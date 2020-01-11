@@ -8,8 +8,8 @@ case class RetweetsBasedTweetGrader(retweetCountThreshold: Int) extends MediaBas
   require(retweetCountThreshold >= 0)
   
   override def gradeTweet(t: Protocol.Tweet): Option[Tweet] =
-    super.gradeTweet(t).flatMap { t =>
-      if (t.retweetCount >= retweetCountThreshold) Some(t)
+    super.gradeTweet(t).flatMap { mediaTweet =>
+      if (t.retweetCount >= retweetCountThreshold) Some(mediaTweet)
       else None
     }
 }

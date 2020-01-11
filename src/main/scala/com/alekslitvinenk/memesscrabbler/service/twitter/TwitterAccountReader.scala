@@ -9,7 +9,7 @@ import akka.http.scaladsl.model.headers.{Authorization, OAuth2BearerToken}
 import akka.http.scaladsl.model.{HttpRequest, Uri}
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.ActorMaterializer
-import com.alekslitvinenk.memesscrabbler.domain.twitter.Protocol.Tweet
+import com.alekslitvinenk.memesscrabbler.domain.twitter.Protocol._
 import com.alekslitvinenk.memesscrabbler.domain.twitter.{BearerTokenProvider, TwitterId}
 import com.alekslitvinenk.memesscrabbler.util.StrictLogging
 

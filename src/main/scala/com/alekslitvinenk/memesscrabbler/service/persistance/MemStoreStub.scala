@@ -1,6 +1,6 @@
 package com.alekslitvinenk.memesscrabbler.service.persistance
 
-import com.alekslitvinenk.memesscrabbler.domain.Mem
+import com.alekslitvinenk.memesscrabbler.domain.Protocol.Mem
 import com.alekslitvinenk.memesscrabbler.util.StrictLogging
 
 import scala.concurrent.Future

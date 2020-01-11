@@ -1,6 +1,7 @@
 package com.alekslitvinenk.memesscrabbler.domain.twitter
 
-import spray.json.{DefaultJsonProtocol, JsArray, JsNumber, JsValue, RootJsonFormat}
+import com.alekslitvinenk.memesscrabbler.domain.twitter.Protocol.MediaType
+import spray.json.{DefaultJsonProtocol, JsArray, JsNumber, JsValue, JsonReader, RootJsonFormat}
 
 object Protocol extends DefaultJsonProtocol {
   
@@ -16,10 +17,14 @@ object Protocol extends DefaultJsonProtocol {
     durationMills: Option[Int],
   )
   
+  object MediaType extends Enumeration {
+    val Photo, Video = Value
+  }
+  
   case class Media(
     id: Long,
     mediaUrl: String,
-    `type`: String,
+    `type`: MediaType.Value,
     videoInfo: Option[VideoInfo],
   )
   
@@ -57,13 +62,19 @@ object Protocol extends DefaultJsonProtocol {
     )
   }
   
+  implicit val readMediaType: JsonReader[MediaType.Value] = (json: JsValue) => json.convertTo[String] match {
+    case "photo" => MediaType.Photo
+    case "video" => MediaType.Video
+    case _ => throw new IllegalArgumentException("Unknown media type")
+  }
+  
   private def readMedia(value: JsValue): Media = {
     val fields = value.asJsObject.fields
     
     Media(
       id = fields("id").convertTo[Long],
       mediaUrl = fields("media_url").convertTo[String],
-      `type` = fields("type").convertTo[String],
+      `type` = fields("type").convertTo[MediaType.Value],
       videoInfo = fields.get("video_info").map(readVideoInfo)
     )
   }
@@ -94,5 +105,4 @@ object Protocol extends DefaultJsonProtocol {
       )
     }
   }
-  
 }

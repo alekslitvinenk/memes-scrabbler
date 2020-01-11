@@ -1,3 +1,6 @@
 package com.alekslitvinenk.memesscrabbler.domain
 
-case class Mem(a: Int)
+object Protocol {
+  
+  case class Mem(a: Int)
+}

@@ -1,6 +1,6 @@
 package com.alekslitvinenk.memesscrabbler.service.twitter
 
-import com.alekslitvinenk.memesscrabbler.domain.Mem
+import com.alekslitvinenk.memesscrabbler.domain.Protocol.Mem
 import com.alekslitvinenk.memesscrabbler.domain.twitter.Protocol.Tweet
 import com.alekslitvinenk.memesscrabbler.service.persistance.MemStore
 
@@ -10,6 +10,7 @@ case class MemTweetProcessor(tweetGrader: TweetGrader, memStore: MemStore) {
     qualifyAsMem(t).map(memStore.storeMem)
   
   private def qualifyAsMem(t: Tweet): Option[Mem] =
-    if (tweetGrader.gradeTweet(t)) Some(Mem(1))
-    else None
+    tweetGrader.gradeTweet(t).map { qualifiedTweet =>
+      Mem(1)
+    }
 }

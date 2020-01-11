@@ -4,12 +4,10 @@ import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import com.alekslitvinenk.memesscrabbler.config.MemesScrabbler
 import com.alekslitvinenk.memesscrabbler.domain.facebook.PageId
-import com.alekslitvinenk.memesscrabbler.domain.twitter.Protocol.Tweet
 import com.alekslitvinenk.memesscrabbler.domain.twitter.{BearerToken, BearerTokenProvider, TwitterId}
 import com.alekslitvinenk.memesscrabbler.service.facebook.FacebookPageFeedReader
 import com.alekslitvinenk.memesscrabbler.service.persistance.MemStoreStub
 import com.alekslitvinenk.memesscrabbler.service.twitter.{MemTweetProcessor, RetweetsBasedTweetGrader, TwitterAccountReader}
-import com.alekslitvinenk.memesscrabbler.service.{RetweetsBasedTweetGrader, TwitterAccountReader}
 import com.alekslitvinenk.memesscrabbler.util.StrictLogging
 import com.typesafe.config.ConfigFactory
 
