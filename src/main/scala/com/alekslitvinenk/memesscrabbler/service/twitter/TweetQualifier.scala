@@ -2,7 +2,7 @@ package com.alekslitvinenk.memesscrabbler.service.twitter
 
 import com.alekslitvinenk.memesscrabbler.domain.twitter.Protocol.Tweet
 
-trait TweetGrader {
+trait TweetQualifier {
   
-  def gradeTweet(t: Tweet): Option[Tweet]
+  def getQualifiedTweet(t: Tweet): Option[Tweet]
 }

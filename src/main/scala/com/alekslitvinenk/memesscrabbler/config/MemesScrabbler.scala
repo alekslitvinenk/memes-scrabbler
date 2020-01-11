@@ -8,6 +8,7 @@ case class MemesScrabbler(
    resourceIds: String,
    twitterBearerToken: String,
    retweetsToQualify: Int,
+   maxVideoDurationMin: Int,
 )
 
 object MemesScrabbler {

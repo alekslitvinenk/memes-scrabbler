@@ -18,7 +18,7 @@ object Protocol extends DefaultJsonProtocol {
   )
   
   object MediaType extends Enumeration {
-    val Photo, Video = Value
+    val Photo, Video, Unknown = Value
   }
   
   case class Media(
@@ -62,10 +62,13 @@ object Protocol extends DefaultJsonProtocol {
     )
   }
   
-  implicit val readMediaType: JsonReader[MediaType.Value] = (json: JsValue) => json.convertTo[String] match {
-    case "photo" => MediaType.Photo
-    case "video" => MediaType.Video
-    case _ => throw new IllegalArgumentException("Unknown media type")
+  implicit val readMediaType: JsonReader[MediaType.Value] = (json: JsValue) => {
+    val mediaType = json.convertTo[String]
+    mediaType match {
+      case "photo" => MediaType.Photo
+      case "video" => MediaType.Video
+      case _ => MediaType.Unknown
+    }
   }
   
   private def readMedia(value: JsValue): Media = {

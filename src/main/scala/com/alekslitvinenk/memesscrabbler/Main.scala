@@ -7,7 +7,7 @@ import com.alekslitvinenk.memesscrabbler.domain.facebook.PageId
 import com.alekslitvinenk.memesscrabbler.domain.twitter.{BearerToken, BearerTokenProvider, TwitterId}
 import com.alekslitvinenk.memesscrabbler.service.facebook.FacebookPageFeedReader
 import com.alekslitvinenk.memesscrabbler.service.persistance.MemStoreStub
-import com.alekslitvinenk.memesscrabbler.service.twitter.{MemTweetProcessor, RetweetsBasedTweetGrader, TwitterAccountReader}
+import com.alekslitvinenk.memesscrabbler.service.twitter.{MemTweetProcessor, MediaRetweetCountBasedQualifier, TwitterAccountReader}
 import com.alekslitvinenk.memesscrabbler.util.StrictLogging
 import com.typesafe.config.ConfigFactory
 
@@ -32,13 +32,20 @@ object Main extends App with StrictLogging {
     BearerToken("123"),
   ))
   
+  val memStore = MemStoreStub()
+  
   val futureResults = resourcesList.map { r =>
     val prefix = r.substring(0, 1)
     val id = r.substring(2)
     
     prefix match {
       case TwitterAccount => TwitterAccountReader(TwitterId(id))
-        .consumeTweets(MemTweetProcessor(RetweetsBasedTweetGrader(memesScrabblerConfig.retweetsToQualify), MemStoreStub()).process)
+        .consumeTweets(MemTweetProcessor(
+          MediaRetweetCountBasedQualifier(
+            memesScrabblerConfig.retweetsToQualify,
+            memesScrabblerConfig.maxVideoDurationMin
+          ),
+          memStore).process)
 
       // FacebookPageFeedReader here just for app extensibility demonstration
       // It has dummy implementation for the time being ;)
@@ -52,4 +59,5 @@ object Main extends App with StrictLogging {
   Await.result(finalFuture, Duration.Inf)
   
   logger.debug(">>> All jobs completed")
+  logger.debug(s"Mem count: ${memStore.getMemesCount}")
 }
