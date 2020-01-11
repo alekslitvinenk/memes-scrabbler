@@ -37,7 +37,7 @@ object Protocol extends DefaultJsonProtocol {
     id: Long,
     text: String,
     extendedEntities: Option[EntitiesList],
-    lang: String,
+    lang: TweetLang.Value,
     retweetCount: Int,
     favouriteCont: Int,
   )
@@ -90,6 +90,18 @@ object Protocol extends DefaultJsonProtocol {
     )
   }
   
+  object TweetLang extends Enumeration {
+    val Ru = Value("ru")
+    val En = Value("en")
+    val De = Value("de")
+    val Fr = Value("fr")
+    val Unknown = Value
+  }
+  
+  implicit val readTweetLang: JsonReader[TweetLang.Value] = (json: JsValue) => {
+    TweetLang.withName(json.convertTo[String])
+  }
+  
   implicit object TweetFormat extends RootJsonFormat[Tweet] {
     // The App ain't meant to produce JSON, so leave unimplemented
     def write(t: Tweet) = ???
@@ -102,7 +114,7 @@ object Protocol extends DefaultJsonProtocol {
         id = fields("id").convertTo[Long],
         text = fields("text").convertTo[String],
         extendedEntities = fields.get("extended_entities").map(readEntities),
-        lang = fields("lang").convertTo[String],
+        lang = fields("lang").convertTo[TweetLang.Value],
         retweetCount = fields("retweet_count").convertTo[Int],
         favouriteCont = fields("favorite_count").convertTo[Int],
       )

@@ -4,10 +4,11 @@ import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import com.alekslitvinenk.memesscrabbler.config.MemesScrabbler
 import com.alekslitvinenk.memesscrabbler.domain.facebook.PageId
+import com.alekslitvinenk.memesscrabbler.domain.twitter.Protocol.TweetLang
 import com.alekslitvinenk.memesscrabbler.domain.twitter.{BearerToken, BearerTokenProvider, TwitterId}
 import com.alekslitvinenk.memesscrabbler.service.facebook.FacebookPageFeedReader
 import com.alekslitvinenk.memesscrabbler.service.persistance.MemStoreStub
-import com.alekslitvinenk.memesscrabbler.service.twitter.{MemTweetProcessor, MediaRetweetCountBasedQualifier, TwitterAccountReader}
+import com.alekslitvinenk.memesscrabbler.service.twitter.{MediaRetweetCountAndLangBasedQualifier, MemTweetProcessor, TwitterAccountReader}
 import com.alekslitvinenk.memesscrabbler.util.StrictLogging
 import com.typesafe.config.ConfigFactory
 
@@ -41,9 +42,10 @@ object Main extends App with StrictLogging {
     prefix match {
       case TwitterAccount => TwitterAccountReader(TwitterId(id))
         .consumeTweets(MemTweetProcessor(
-          MediaRetweetCountBasedQualifier(
+          MediaRetweetCountAndLangBasedQualifier(
             memesScrabblerConfig.retweetsToQualify,
-            memesScrabblerConfig.maxVideoDurationMin
+            memesScrabblerConfig.maxVideoDurationMin,
+            TweetLang.withName(memesScrabblerConfig.memLanguage),
           ),
           memStore).process)
 
@@ -59,5 +61,7 @@ object Main extends App with StrictLogging {
   Await.result(finalFuture, Duration.Inf)
   
   logger.debug(">>> All jobs completed")
-  logger.debug(s"Mem count: ${memStore.getMemesCount}")
+  logger.debug(s"Memes collected: ${memStore.getMemesCount}")
+  
+  system.terminate();
 }
