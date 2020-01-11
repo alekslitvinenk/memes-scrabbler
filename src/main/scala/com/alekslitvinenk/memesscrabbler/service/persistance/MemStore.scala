@@ -1,4 +1,4 @@
-package com.alekslitvinenk.memesscrabbler.service
+package com.alekslitvinenk.memesscrabbler.service.persistance
 
 import com.alekslitvinenk.memesscrabbler.domain.Mem
 

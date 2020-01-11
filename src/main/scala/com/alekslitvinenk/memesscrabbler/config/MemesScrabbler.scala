@@ -7,6 +7,7 @@ import pureconfig.generic.auto._
 case class MemesScrabbler(
    resourceIds: String,
    twitterBearerToken: String,
+   retweetsToQualify: Int,
 )
 
 object MemesScrabbler {

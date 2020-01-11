@@ -1,7 +1,7 @@
-package com.alekslitvinenk.memesscrabbler.service
+package com.alekslitvinenk.memesscrabbler.service.facebook
 
 import com.alekslitvinenk.memesscrabbler.domain.facebook.PageId
-import com.alekslitvinenk.memesscrabbler.domain.facebook.Protocol._
+import com.alekslitvinenk.memesscrabbler.domain.facebook.Protocol.FacebookPost
 
 import scala.concurrent.Future
 

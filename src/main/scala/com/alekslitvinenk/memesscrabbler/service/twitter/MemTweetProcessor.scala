@@ -1,7 +1,8 @@
-package com.alekslitvinenk.memesscrabbler.service
+package com.alekslitvinenk.memesscrabbler.service.twitter
 
 import com.alekslitvinenk.memesscrabbler.domain.Mem
 import com.alekslitvinenk.memesscrabbler.domain.twitter.Protocol.Tweet
+import com.alekslitvinenk.memesscrabbler.service.persistance.MemStore
 
 case class MemTweetProcessor(tweetGrader: TweetGrader, memStore: MemStore) {
   

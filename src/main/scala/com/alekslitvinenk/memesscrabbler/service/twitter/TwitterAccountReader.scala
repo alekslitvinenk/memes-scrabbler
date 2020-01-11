@@ -1,16 +1,15 @@
-package com.alekslitvinenk.memesscrabbler.service
+package com.alekslitvinenk.memesscrabbler.service.twitter
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
-import akka.http.scaladsl.model.StatusCodes._
+import akka.http.scaladsl.model.StatusCodes.{OK, TooManyRequests}
 import akka.http.scaladsl.model.Uri.Query
 import akka.http.scaladsl.model.headers.{Authorization, OAuth2BearerToken}
 import akka.http.scaladsl.model.{HttpRequest, Uri}
-import akka.http.scaladsl.unmarshalling._
+import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.ActorMaterializer
-import com.alekslitvinenk.memesscrabbler.Main.logger
-import com.alekslitvinenk.memesscrabbler.domain.twitter.Protocol._
+import com.alekslitvinenk.memesscrabbler.domain.twitter.Protocol.Tweet
 import com.alekslitvinenk.memesscrabbler.domain.twitter.{BearerTokenProvider, TwitterId}
 import com.alekslitvinenk.memesscrabbler.util.StrictLogging
 
