@@ -7,7 +7,7 @@ import com.alekslitvinenk.memesscrabbler.domain.facebook.PageId
 import com.alekslitvinenk.memesscrabbler.domain.twitter.Protocol.TweetLang
 import com.alekslitvinenk.memesscrabbler.domain.twitter.{BearerToken, BearerTokenProvider, TwitterId}
 import com.alekslitvinenk.memesscrabbler.service.facebook.FacebookPageFeedReader
-import com.alekslitvinenk.memesscrabbler.service.persistance.MemStoreStub
+import com.alekslitvinenk.memesscrabbler.service.persistance.MongoStore
 import com.alekslitvinenk.memesscrabbler.service.twitter.{MediaRetweetCountAndLangBasedQualifier, MemTweetProcessor, TwitterAccountReader}
 import com.alekslitvinenk.memesscrabbler.util.StrictLogging
 import com.typesafe.config.ConfigFactory
@@ -33,7 +33,7 @@ object Main extends App with StrictLogging {
     BearerToken("123"),
   ))
   
-  val memStore = MemStoreStub()
+  val memStore = MongoStore(memesScrabblerConfig.mongoHost, memesScrabblerConfig.mongoDb)
   
   val futureResults = resourcesList.map { r =>
     val prefix = r.substring(0, 1)
@@ -56,7 +56,9 @@ object Main extends App with StrictLogging {
     }
   }.toList
   
-  val finalFuture = Future.reduceLeft(futureResults)((_, _) => ())
+  val finalFuture =
+    if (futureResults.nonEmpty) Future.reduceLeft(futureResults)((_, _) => ())
+    else Future.successful(())
   
   Await.result(finalFuture, Duration.Inf)
   

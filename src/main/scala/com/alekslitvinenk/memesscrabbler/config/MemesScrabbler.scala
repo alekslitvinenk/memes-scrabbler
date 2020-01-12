@@ -10,6 +10,8 @@ case class MemesScrabbler(
    retweetsToQualify: Int,
    maxVideoDurationMin: Int,
    memLanguage: String,
+   mongoHost: String,
+   mongoDb: String,
 )
 
 object MemesScrabbler {

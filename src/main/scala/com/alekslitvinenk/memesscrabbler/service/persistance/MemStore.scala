@@ -7,4 +7,6 @@ import scala.concurrent.Future
 trait MemStore {
   
   def storeMem(m: Mem): Future[Unit]
+  
+  def getMemesCount(): Int
 }
