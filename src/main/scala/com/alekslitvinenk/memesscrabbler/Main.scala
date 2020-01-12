@@ -64,6 +64,4 @@ object Main extends App with StrictLogging {
   
   logger.debug(">>> All jobs completed")
   logger.debug(s"Memes collected: ${memStore.getMemesCount}")
-  
-  system.terminate();
 }
