@@ -1,7 +1,8 @@
 package com.alekslitvinenk.memesscrabbler.domain.twitter
 
-import com.alekslitvinenk.memesscrabbler.domain.twitter.Protocol.MediaType
 import spray.json.{DefaultJsonProtocol, JsArray, JsNumber, JsValue, JsonReader, RootJsonFormat}
+
+import scala.util.Try
 
 object Protocol extends DefaultJsonProtocol {
   
@@ -62,14 +63,14 @@ object Protocol extends DefaultJsonProtocol {
     )
   }
   
-  implicit val readMediaType: JsonReader[MediaType.Value] = (json: JsValue) => {
+  implicit val readMediaType: JsonReader[MediaType.Value] = (json: JsValue) => Try {
     val mediaType = json.convertTo[String]
     mediaType match {
       case "photo" => MediaType.Photo
       case "video" => MediaType.Video
-      case _ => MediaType.Unknown
+      case _ => throw new IllegalArgumentException(s"Unknown media type: $mediaType")
     }
-  }
+  }.getOrElse(MediaType.Unknown)
   
   private def readMedia(value: JsValue): Media = {
     val fields = value.asJsObject.fields
@@ -99,7 +100,7 @@ object Protocol extends DefaultJsonProtocol {
   }
   
   implicit val readTweetLang: JsonReader[TweetLang.Value] = (json: JsValue) => {
-    TweetLang.withName(json.convertTo[String])
+    Try(TweetLang.withName(json.convertTo[String])).getOrElse(TweetLang.Unknown)
   }
   
   implicit object TweetFormat extends RootJsonFormat[Tweet] {
