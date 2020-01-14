@@ -9,7 +9,8 @@ import com.alekslitvinenk.memesscrabbler.domain.Protocol
 import com.alekslitvinenk.memesscrabbler.domain.twitter.BearerTokenProvider
 import com.alekslitvinenk.memesscrabbler.util.StrictLogging
 import org.mongodb.scala.gridfs.{GridFSBucket, GridFSUploadOptions}
-import org.mongodb.scala.{Document, MongoClient, MongoDatabase, Observable}
+import org.mongodb.scala.model.{IndexOptions, Indexes}
+import org.mongodb.scala.{Completed, Document, MongoClient, MongoDatabase, Observable, Observer}
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
@@ -22,6 +23,8 @@ case class MongoStore(mongoHost: String, dbName: String)(implicit bearerTokenPro
   private val mongoClient: MongoClient = MongoClient(s"mongodb://$mongoHost")
   private val database: MongoDatabase = mongoClient.getDatabase(dbName)
   private val gridFSBucket: GridFSBucket = GridFSBucket(database)
+  private val filesCollection = database.getCollection("fs.files")
+  filesCollection.createIndex(Indexes.ascending("md5"), new IndexOptions().unique(true)).subscribe(SingleSubscriber())
   
   override def storeMem(m: Protocol.Mem): Future[Unit] = {
     val req = HttpRequest()
@@ -47,4 +50,20 @@ case class MongoStore(mongoHost: String, dbName: String)(implicit bearerTokenPro
     val res = Await.result(gridFSBucket.find().toFuture(), Duration.Inf)
     res.length
   }
+}
+
+case class MongoCompleteSubscriber() extends Observer[Completed] with StrictLogging {
+  override def onNext(result: Completed): Unit = logger.debug(s"Inserted $result")
+  
+  override def onError(e: Throwable): Unit = logger.error(s"Failed: $e")
+  
+  override def onComplete(): Unit = logger.debug("Completed")
+}
+
+case class SingleSubscriber() extends Observer[String]  with StrictLogging {
+  override def onNext(result: String): Unit = logger.debug(result)
+  
+  override def onError(e: Throwable): Unit = logger.error(s"Failed: $e")
+  
+  override def onComplete(): Unit = logger.debug("Completed")
 }
