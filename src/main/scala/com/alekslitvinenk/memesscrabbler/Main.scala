@@ -34,10 +34,9 @@ object Main extends App with StrictLogging {
   val memesScrabblerConfig = MemesScrabbler(config)
   val resourcesList = memesScrabblerConfig.resourceIds.split(",")
 
-  implicit val bearerTokenProvider = BearerTokenProvider(List(
-    BearerToken(memesScrabblerConfig.twitterBearerToken),
-    BearerToken("123"),
-  ))
+  implicit val bearerTokenProvider = BearerTokenProvider(
+    memesScrabblerConfig.twitterBearerTokens.split(",").map(bt => BearerToken(bt)).toList
+  )
   
   val memStore = MongoStore(memesScrabblerConfig.mongoHost, memesScrabblerConfig.mongoDb)
   

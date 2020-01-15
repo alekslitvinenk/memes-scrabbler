@@ -6,7 +6,7 @@ import pureconfig.generic.auto._
 
 case class MemesScrabbler(
    resourceIds: String,
-   twitterBearerToken: String,
+   twitterBearerTokens: String,
    retweetsToQualify: Int,
    maxVideoDurationMin: Int,
    memLanguage: String,
