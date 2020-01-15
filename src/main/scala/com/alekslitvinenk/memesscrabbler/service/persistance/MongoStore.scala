@@ -1,5 +1,6 @@
 package com.alekslitvinenk.memesscrabbler.service.persistance
 import java.nio.ByteBuffer
+import java.util.concurrent.atomic.AtomicInteger
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
@@ -12,8 +13,7 @@ import org.mongodb.scala.gridfs.{GridFSBucket, GridFSUploadOptions}
 import org.mongodb.scala.model.{IndexOptions, Indexes}
 import org.mongodb.scala.{Completed, Document, MongoClient, MongoDatabase, Observable, Observer}
 
-import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext, Future}
 
 case class MongoStore(mongoHost: String, dbName: String)(implicit bearerTokenProvider: BearerTokenProvider,
                  actorSystem: ActorSystem,
@@ -25,6 +25,8 @@ case class MongoStore(mongoHost: String, dbName: String)(implicit bearerTokenPro
   private val gridFSBucket: GridFSBucket = GridFSBucket(database)
   private val filesCollection = database.getCollection("fs.files")
   filesCollection.createIndex(Indexes.ascending("md5"), new IndexOptions().unique(true)).subscribe(SingleSubscriber())
+  
+  private val memesCounter = new AtomicInteger(0)
   
   override def storeMem(m: Protocol.Mem): Future[Unit] = {
     val req = HttpRequest()
@@ -40,16 +42,15 @@ case class MongoStore(mongoHost: String, dbName: String)(implicit bearerTokenPro
           .metadata(Document("type" -> m.mediaType.toString))
         
         val streamToUploadFrom = Observable[ByteBuffer](List(byteString.asByteBuffer))
+  
+        memesCounter.incrementAndGet()
         
         gridFSBucket.uploadFromObservable("file", streamToUploadFrom, options).toFuture().map(_ => ())
       }
     }
   }
   
-  override def getMemesCount(): Int = {
-    val res = Await.result(gridFSBucket.find().toFuture(), Duration.Inf)
-    res.length
-  }
+  override def getMemesCount: Int = memesCounter.get()
 }
 
 case class MongoCompleteSubscriber() extends Observer[Completed] with StrictLogging {

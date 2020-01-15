@@ -8,5 +8,5 @@ trait MemStore {
   
   def storeMem(m: Mem): Future[Unit]
   
-  def getMemesCount(): Int
+  def getMemesCount: Int
 }

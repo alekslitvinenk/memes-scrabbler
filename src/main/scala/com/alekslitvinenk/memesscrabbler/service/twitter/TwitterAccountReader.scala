@@ -33,7 +33,7 @@ case class TwitterAccountReader(twitterId: TwitterId)
       else tweets
       
       tweetsToProcess.foreach { t =>
-        //printTweet(t)
+        printTweet(t)
         f(t)
       }
       
